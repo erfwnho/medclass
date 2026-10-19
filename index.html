@@ -3,222 +3,81 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-
 <title>MedClass | کلاس آنلاین</title>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-:root{
-  --p:#2563eb;
-  --bg:#f4f7fb;
-  --card:#fff;
-  --text:#152238;
-  --muted:#6b7280;
-  --green:#16a34a;
-}
-
 *{box-sizing:border-box}
-
 body{
-  margin:0;
-  font-family:Tahoma,Arial,sans-serif;
-  background:var(--bg);
-  color:var(--text);
+ margin:0;font-family:Tahoma,Arial,sans-serif;
+ background:#f4f7fb;color:#152238
 }
-
 header{
-  background:linear-gradient(135deg,#0f172a,#2563eb);
-  color:#fff;
-  padding:20px 7%;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:20px;
-  flex-wrap:wrap;
+ background:linear-gradient(135deg,#0f172a,#2563eb);
+ color:white;padding:18px 7%;
+ display:flex;justify-content:space-between;align-items:center
 }
-
-.brand{
-  font-size:25px;
-  font-weight:800;
-}
-
+.brand{font-size:25px;font-weight:bold}
 .brand span{color:#93c5fd}
+main{max-width:1100px;margin:auto;padding:30px 20px}
 
-.user{
-  background:#ffffff1c;
-  padding:9px 14px;
-  border-radius:14px;
+.auth{
+ max-width:430px;margin:45px auto;background:white;
+ padding:28px;border-radius:22px;
+ box-shadow:0 10px 35px #00000012
 }
+.auth h1{text-align:center}
+.auth p{text-align:center;color:#6b7280;line-height:1.8}
 
-main{
-  max-width:1150px;
-  margin:auto;
-  padding:30px 20px;
+input,select{
+ width:100%;padding:13px;margin:7px 0;
+ border:1px solid #dbe2ea;border-radius:11px;
+ font-family:inherit;font-size:14px
 }
+button{
+ border:0;background:#2563eb;color:white;
+ padding:12px 17px;border-radius:11px;
+ cursor:pointer;font-family:inherit
+}
+.full{width:100%;margin-top:8px}
+.secondary{background:#e5e7eb;color:#111827}
+
+.switch{
+ text-align:center;margin-top:18px;color:#2563eb;
+ cursor:pointer
+}
+.message{
+ padding:11px;border-radius:10px;margin:12px 0;
+ display:none;line-height:1.7
+}
+.error{display:block;background:#fee2e2;color:#991b1b}
+.success{display:block;background:#dcfce7;color:#166534}
+
+#dashboard{display:none}
 
 .hero{
-  background:var(--card);
-  border-radius:22px;
-  padding:30px;
-  box-shadow:0 8px 30px #1e293b12;
-  display:grid;
-  grid-template-columns:1.4fr .6fr;
-  gap:25px;
+ background:white;border-radius:22px;padding:28px;
+ box-shadow:0 8px 30px #1e293b12
 }
-
-.hero h1{
-  margin-top:0;
-  font-size:31px;
-}
-
-.hero p{
-  color:var(--muted);
-  line-height:2;
-}
-
-.heroBox{
-  background:#eff6ff;
-  border-radius:18px;
-  padding:20px;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-}
-
-.heroBox strong{
-  font-size:38px;
-  color:var(--p);
-}
-
-.section-title{
-  margin:34px 0 16px;
-}
-
 .courses{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:18px;
+ display:grid;grid-template-columns:repeat(3,1fr);
+ gap:18px;margin-top:20px
 }
-
 .course{
-  background:#fff;
-  border-radius:18px;
-  padding:20px;
-  box-shadow:0 5px 20px #1e293b0d;
-  transition:.2s;
+ background:white;padding:20px;border-radius:18px;
+ box-shadow:0 5px 20px #1e293b0d
+}
+.course p{color:#6b7280;line-height:1.8}
+.icon{font-size:32px}
+
+.topUser{
+ display:flex;align-items:center;gap:10px
 }
 
-.course:hover{
-  transform:translateY(-4px);
-}
-
-.icon{
-  width:48px;
-  height:48px;
-  border-radius:14px;
-  background:#dbeafe;
-  display:grid;
-  place-items:center;
-  font-size:24px;
-}
-
-.course p{
-  color:var(--muted);
-  font-size:14px;
-  line-height:1.8;
-}
-
-.progress{
-  height:8px;
-  background:#e5e7eb;
-  border-radius:9px;
-  overflow:hidden;
-}
-
-.progress i{
-  display:block;
-  height:100%;
-  background:var(--green);
-}
-
-button{
-  border:0;
-  background:var(--p);
-  color:#fff;
-  border-radius:11px;
-  padding:10px 15px;
-  cursor:pointer;
-  font-family:inherit;
-  margin-top:14px;
-}
-
-.panel{
-  margin-top:25px;
-  background:#fff;
-  padding:22px;
-  border-radius:18px;
-}
-
-.row{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:14px 0;
-  border-bottom:1px solid #eef2f7;
-  gap:12px;
-}
-
-.row:last-child{border:0}
-
-.badge{
-  font-size:12px;
-  background:#dcfce7;
-  color:#166534;
-  padding:5px 9px;
-  border-radius:20px;
-}
-
-footer{
-  text-align:center;
-  color:#94a3b8;
-  padding:30px;
-}
-
-.modal{
-  position:fixed;
-  inset:0;
-  background:#0f172aaa;
-  display:none;
-  place-items:center;
-  padding:20px;
-}
-
-.modal.open{display:grid}
-
-.modal-card{
-  background:#fff;
-  width:min(500px,100%);
-  border-radius:20px;
-  padding:25px;
-}
-
-.close{
-  float:left;
-  background:#e5e7eb;
-  color:#111;
-  margin:0;
-}
-
-.lesson{
-  padding:12px;
-  background:#f8fafc;
-  border-radius:12px;
-  margin:10px 0;
-}
-
-@media(max-width:800px){
-  .hero{grid-template-columns:1fr}
-  .courses{grid-template-columns:1fr}
-  .hero h1{font-size:25px}
+@media(max-width:750px){
+ .courses{grid-template-columns:1fr}
+ header{padding:15px}
 }
 </style>
 </head>
@@ -226,56 +85,120 @@ footer{
 <body>
 
 <header>
-  <div class="brand">Med<span>Class</span></div>
-  <div class="user">👨‍🎓 عرفان | پنل دانشجو</div>
+ <div class="brand">Med<span>Class</span></div>
+
+ <div class="topUser">
+   <span id="headerUser"></span>
+   <button id="logoutBtn" style="display:none;background:#ef4444"
+   onclick="logout()">خروج</button>
+ </div>
 </header>
 
 <main>
 
-<section class="hero">
+<!-- LOGIN -->
 
-<div>
-  <h1>سلام، به کلاس آنلاین خوش اومدی 👋</h1>
+<section class="auth" id="authBox">
 
-  <p>
-  درس‌هات رو دنبال کن، جزوه‌ها و جلسات رو ببین
-  و تکالیفت رو از همین پنل مدیریت کن.
-  </p>
+<h1 id="authTitle">ورود به MedClass</h1>
 
-  <button onclick="document.querySelector('#courses').scrollIntoView({behavior:'smooth'})">
-  مشاهده درس‌ها
-  </button>
+<p id="authDescription">
+برای ورود به کلاس‌ها ایمیل و رمز عبور خودت رو وارد کن
+</p>
+
+<div id="message" class="message"></div>
+
+<div id="registerFields" style="display:none">
+
+<input id="name" type="text" placeholder="نام و نام خانوادگی">
+
+<select id="role">
+<option value="student">دانشجو</option>
+<option value="teacher">استاد</option>
+</select>
+
 </div>
 
-<div class="heroBox">
-  <span>پیشرفت این ترم</span>
-  <strong>72%</strong>
-  <small>۳ درس فعال • ۱۲ جلسه تکمیل‌شده</small>
+<input id="email" type="email" placeholder="ایمیل">
+
+<input id="password" type="password" placeholder="رمز عبور">
+
+<button class="full" id="authButton" onclick="login()">
+ورود
+</button>
+
+<div class="switch" id="switchText" onclick="switchMode()">
+حساب نداری؟ ثبت‌نام کن
 </div>
 
 </section>
 
 
-<h2 class="section-title" id="courses">درس‌های من</h2>
+<!-- DASHBOARD -->
 
-<section class="courses">
+<section id="dashboard">
 
-<div class="course">
+<div class="hero">
 
-<div class="icon">🏥</div>
-
-<h3>اصول و فنون اتاق عمل</h3>
+<h1>
+سلام <span id="userName">دانشجو</span> 👋
+</h1>
 
 <p>
-استاد: دکتر احمدی
-<br>
-جلسه بعدی: شنبه ساعت ۱۰
+به پنل MedClass خوش اومدی. از اینجا می‌تونی کلاس‌ها و درس‌هات رو مدیریت کنی.
 </p>
 
-<div class="progress">
-<i style="width:80%"></i>
 </div>
 
-<button onclick="openCourse(
-'اصول و فنون اتاق عمل',
-['اصول اسکراب','وظایف سیرکولر','آماده‌سازی اتاق عمل']
+<h2>درس‌های من</h2>
+
+<div class="courses">
+
+<div class="course">
+<div class="icon">🏥</div>
+<h3>اصول و فنون اتاق عمل</h3>
+<p>جلسات آموزشی، جزوه‌ها و تکالیف درس</p>
+<button>ورود به کلاس</button>
+</div>
+
+<div class="course">
+<div class="icon">🫀</div>
+<h3>آناتومی جراحی</h3>
+<p>آناتومی کاربردی و مباحث جراحی</p>
+<button>مشاهده جلسات</button>
+</div>
+
+<div class="course">
+<div class="icon">🧤</div>
+<h3>استریلیزاسیون</h3>
+<p>اصول استریل و ضدعفونی تجهیزات</p>
+<button>مشاهده درس</button>
+</div>
+
+</div>
+
+</section>
+
+</main>
+
+
+<script>
+
+/* =================================
+   اطلاعات پروژه Supabase خودت
+================================= */
+
+const SUPABASE_URL = "https://kuwhjgrkmojemdvxcrly.supabase.co/rest/v1/";
+const SUPABASE_KEY = "sb_publishable_-t6RRFSHNoGaQpg9siMNrQ_cNGlnzwz";
+
+const client = supabase.createClient(
+ SUPABASE_URL,
+ SUPABASE_KEY
+);
+
+
+/* ================================= */
+
+let registerMode = false;
+
+fu
