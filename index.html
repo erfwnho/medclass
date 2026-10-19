@@ -183,22 +183,270 @@ button{
 
 
 <script>
+ <script>
 
-/* =================================
-   اطلاعات پروژه Supabase خودت
-================================= */
-
-const SUPABASE_URL = "https://kuwhjgrkmojemdvxcrly.supabase.co/rest/v1/";
+const SUPABASE_URL = "https://kuwhjgrkmojemdvxcrly.supabase.co";
 const SUPABASE_KEY = "sb_publishable_-t6RRFSHNoGaQpg9siMNrQ_cNGlnzwz";
 
 const client = supabase.createClient(
- SUPABASE_URL,
- SUPABASE_KEY
+  SUPABASE_URL,
+  SUPABASE_KEY
 );
-
-
-/* ================================= */
 
 let registerMode = false;
 
-fu
+
+/* تغییر بین ورود و ثبت نام */
+
+function switchMode(){
+
+  registerMode = !registerMode;
+
+  const title = document.getElementById("authTitle");
+  const description = document.getElementById("authDescription");
+  const button = document.getElementById("authButton");
+  const switchText = document.getElementById("switchText");
+  const fields = document.getElementById("registerFields");
+
+  clearMessage();
+
+  if(registerMode){
+
+    title.innerText = "ساخت حساب در MedClass";
+
+    description.innerText =
+      "اطلاعات خودت رو وارد کن تا حساب کاربری ساخته بشه";
+
+    button.innerText = "ثبت نام";
+
+    switchText.innerText =
+      "حساب داری؟ وارد شو";
+
+    fields.style.display = "block";
+
+    button.onclick = register;
+
+  }else{
+
+    title.innerText = "ورود به MedClass";
+
+    description.innerText =
+      "برای ورود به کلاس‌ها ایمیل و رمز عبور خودت رو وارد کن";
+
+    button.innerText = "ورود";
+
+    switchText.innerText =
+      "حساب نداری؟ ثبت‌نام کن";
+
+    fields.style.display = "none";
+
+    button.onclick = login;
+  }
+}
+
+
+/* پیام */
+
+function showMessage(text,type){
+
+  const box = document.getElementById("message");
+
+  box.innerText = text;
+
+  box.className = "message " + type;
+
+}
+
+function clearMessage(){
+
+  const box = document.getElementById("message");
+
+  box.innerText = "";
+
+  box.className = "message";
+
+}
+
+
+/* ثبت نام */
+
+async function register(){
+
+  clearMessage();
+
+  const name =
+    document.getElementById("name").value.trim();
+
+  const email =
+    document.getElementById("email").value.trim();
+
+  const password =
+    document.getElementById("password").value;
+
+  const role =
+    document.getElementById("role").value;
+
+
+  if(!name || !email || !password){
+
+    showMessage(
+      "لطفاً همه اطلاعات را وارد کن",
+      "error"
+    );
+
+    return;
+  }
+
+
+  if(password.length < 6){
+
+    showMessage(
+      "رمز عبور باید حداقل ۶ کاراکتر باشد",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const { data, error } =
+    await client.auth.signUp({
+
+      email: email,
+
+      password: password,
+
+      options:{
+        data:{
+          name: name,
+          role: role
+        }
+      }
+
+    });
+
+
+  if(error){
+
+    showMessage(
+      error.message,
+      "error"
+    );
+
+    return;
+  }
+
+
+  showMessage(
+    "حساب با موفقیت ساخته شد. اگر تأیید ایمیل فعال باشد، ایمیلت را بررسی کن.",
+    "success"
+  );
+
+}
+
+
+/* ورود */
+
+async function login(){
+
+  clearMessage();
+
+  const email =
+    document.getElementById("email").value.trim();
+
+  const password =
+    document.getElementById("password").value;
+
+
+  if(!email || !password){
+
+    showMessage(
+      "ایمیل و رمز عبور را وارد کن",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const { data, error } =
+    await client.auth.signInWithPassword({
+
+      email: email,
+
+      password: password
+
+    });
+
+
+  if(error){
+
+    showMessage(
+      "ایمیل یا رمز عبور اشتباه است",
+      "error"
+    );
+
+    return;
+  }
+
+
+  showDashboard(data.user);
+
+}
+
+
+/* نمایش پنل */
+
+function showDashboard(user){
+
+  document.getElementById("authBox").style.display =
+    "none";
+
+  document.getElementById("dashboard").style.display =
+    "block";
+
+  document.getElementById("logoutBtn").style.display =
+    "block";
+
+
+  const name =
+    user.user_metadata?.name ||
+    user.email?.split("@")[0] ||
+    "دانشجو";
+
+
+  document.getElementById("userName").innerText =
+    name;
+
+  document.getElementById("headerUser").innerText =
+    name;
+
+}
+
+
+/* خروج */
+
+async function logout(){
+
+  await client.auth.signOut();
+
+  document.getElementById("dashboard").style.display =
+    "none";
+
+  document.getElementById("authBox").style.display =
+    "block";
+
+  document.getElementById("logoutBtn").style.display =
+    "none";
+
+  document.getElementById("headerUser").innerText = "";
+
+}
+
+
+/* بررسی اینکه کاربر قبلاً وارد شده یا نه */
+
+async function checkUser(){
+
+  const { data } =
+    await client.auth.getSessi
