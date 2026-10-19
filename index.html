@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>MedClass | کلاس آنلاین</title>
+
+<style>
+:root{
+  --p:#2563eb;
+  --bg:#f4f7fb;
+  --card:#fff;
+  --text:#152238;
+  --muted:#6b7280;
+  --green:#16a34a;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Tahoma,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+header{
+  background:linear-gradient(135deg,#0f172a,#2563eb);
+  color:#fff;
+  padding:20px 7%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  flex-wrap:wrap;
+}
+
+.brand{
+  font-size:25px;
+  font-weight:800;
+}
+
+.brand span{color:#93c5fd}
+
+.user{
+  background:#ffffff1c;
+  padding:9px 14px;
+  border-radius:14px;
+}
+
+main{
+  max-width:1150px;
+  margin:auto;
+  padding:30px 20px;
+}
+
+.hero{
+  background:var(--card);
+  border-radius:22px;
+  padding:30px;
+  box-shadow:0 8px 30px #1e293b12;
+  display:grid;
+  grid-template-columns:1.4fr .6fr;
+  gap:25px;
+}
+
+.hero h1{
+  margin-top:0;
+  font-size:31px;
+}
+
+.hero p{
+  color:var(--muted);
+  line-height:2;
+}
+
+.heroBox{
+  background:#eff6ff;
+  border-radius:18px;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+
+.heroBox strong{
+  font-size:38px;
+  color:var(--p);
+}
+
+.section-title{
+  margin:34px 0 16px;
+}
+
+.courses{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
+}
+
+.course{
+  background:#fff;
+  border-radius:18px;
+  padding:20px;
+  box-shadow:0 5px 20px #1e293b0d;
+  transition:.2s;
+}
+
+.course:hover{
+  transform:translateY(-4px);
+}
+
+.icon{
+  width:48px;
+  height:48px;
+  border-radius:14px;
+  background:#dbeafe;
+  display:grid;
+  place-items:center;
+  font-size:24px;
+}
+
+.course p{
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.8;
+}
+
+.progress{
+  height:8px;
+  background:#e5e7eb;
+  border-radius:9px;
+  overflow:hidden;
+}
+
+.progress i{
+  display:block;
+  height:100%;
+  background:var(--green);
+}
+
+button{
+  border:0;
+  background:var(--p);
+  color:#fff;
+  border-radius:11px;
+  padding:10px 15px;
+  cursor:pointer;
+  font-family:inherit;
+  margin-top:14px;
+}
+
+.panel{
+  margin-top:25px;
+  background:#fff;
+  padding:22px;
+  border-radius:18px;
+}
+
+.row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:14px 0;
+  border-bottom:1px solid #eef2f7;
+  gap:12px;
+}
+
+.row:last-child{border:0}
+
+.badge{
+  font-size:12px;
+  background:#dcfce7;
+  color:#166534;
+  padding:5px 9px;
+  border-radius:20px;
+}
+
+footer{
+  text-align:center;
+  color:#94a3b8;
+  padding:30px;
+}
+
+.modal{
+  position:fixed;
+  inset:0;
+  background:#0f172aaa;
+  display:none;
+  place-items:center;
+  padding:20px;
+}
+
+.modal.open{display:grid}
+
+.modal-card{
+  background:#fff;
+  width:min(500px,100%);
+  border-radius:20px;
+  padding:25px;
+}
+
+.close{
+  float:left;
+  background:#e5e7eb;
+  color:#111;
+  margin:0;
+}
+
+.lesson{
+  padding:12px;
+  background:#f8fafc;
+  border-radius:12px;
+  margin:10px 0;
+}
+
+@media(max-width:800px){
+  .hero{grid-template-columns:1fr}
+  .courses{grid-template-columns:1fr}
+  .hero h1{font-size:25px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="brand">Med<span>Class</span></div>
+  <div class="user">👨‍🎓 عرفان | پنل دانشجو</div>
+</header>
+
+<main>
+
+<section class="hero">
+
+<div>
+  <h1>سلام، به کلاس آنلاین خوش اومدی 👋</h1>
+
+  <p>
+  درس‌هات رو دنبال کن، جزوه‌ها و جلسات رو ببین
+  و تکالیفت رو از همین پنل مدیریت کن.
+  </p>
+
+  <button onclick="document.querySelector('#courses').scrollIntoView({behavior:'smooth'})">
+  مشاهده درس‌ها
+  </button>
+</div>
+
+<div class="heroBox">
+  <span>پیشرفت این ترم</span>
+  <strong>72%</strong>
+  <small>۳ درس فعال • ۱۲ جلسه تکمیل‌شده</small>
+</div>
+
+</section>
+
+
+<h2 class="section-title" id="courses">درس‌های من</h2>
+
+<section class="courses">
+
+<div class="course">
+
+<div class="icon">🏥</div>
+
+<h3>اصول و فنون اتاق عمل</h3>
+
+<p>
+استاد: دکتر احمدی
+<br>
+جلسه بعدی: شنبه ساعت ۱۰
+</p>
+
+<div class="progress">
+<i style="width:80%"></i>
+</div>
+
+<button onclick="openCourse(
+'اصول و فنون اتاق عمل',
+['اصول اسکراب','وظایف سیرکولر','آماده‌سازی اتاق عمل']
