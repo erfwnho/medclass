@@ -7,7 +7,7 @@ create extension if not exists pgcrypto;
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   full_name text not null default '',
-  role text not null default 'student' check (role in ('student','teacher')),
+  role text not null default 'student',
   created_at timestamptz not null default now()
 );
 
@@ -36,6 +36,52 @@ create table if not exists public.enrollments (
   created_at timestamptz not null default now(),
   unique(course_id, student_id)
 );
+
+-- Add the admin role while preserving existing student/teacher accounts.
+alter table public.profiles drop constraint if exists profiles_role_check;
+alter table public.profiles add constraint profiles_role_check
+  check (role in ('student','teacher','admin'));
+
+-- Security-definer helper avoids recursive profile RLS checks.
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $
+  select exists (
+    select 1 from public.profiles
+    where id = (select auth.uid()) and role = 'admin'
+  );
+$;
+
+-- Only an existing admin may promote/demote another account.
+create or replace function public.admin_set_user_role(target_user_id uuid, new_role text)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $
+begin
+  if not public.is_admin() then
+    raise exception 'Admin access required';
+  end if;
+  if new_role not in ('student','teacher') then
+    raise exception 'Invalid role';
+  end if;
+  if target_user_id = (select auth.uid()) then
+    raise exception 'You cannot change your own admin role';
+  end if;
+  update public.profiles set role = new_role where id = target_user_id;
+  if not found then
+    raise exception 'User profile not found';
+  end if;
+end;
+$;
+
+grant execute on function public.is_admin() to authenticated;
+grant execute on function public.admin_set_user_role(uuid,text) to authenticated;
 
 -- Create a student profile automatically after every successful sign-up.
 create or replace function public.handle_new_user()
@@ -71,6 +117,10 @@ alter table public.enrollments enable row level security;
 drop policy if exists "profiles_select_own" on public.profiles;
 create policy "profiles_select_own" on public.profiles
   for select to authenticated using (id = (select auth.uid()));
+
+drop policy if exists "profiles_select_admin" on public.profiles;
+create policy "profiles_select_admin" on public.profiles
+  for select to authenticated using (public.is_admin());
 
 drop policy if exists "profiles_update_own" on public.profiles;
 create policy "profiles_update_own" on public.profiles
@@ -114,6 +164,19 @@ create policy "courses_teacher_delete" on public.courses
     and exists (select 1 from public.profiles p where p.id = (select auth.uid()) and p.role = 'teacher')
   );
 
+
+drop policy if exists "courses_admin_delete" on public.courses;
+create policy "courses_admin_delete" on public.courses
+  for delete to authenticated using (public.is_admin());
+
+drop policy if exists "courses_admin_update" on public.courses;
+create policy "courses_admin_update" on public.courses
+  for update to authenticated using (public.is_admin()) with check (public.is_admin());
+
+drop policy if exists "courses_admin_insert" on public.courses;
+create policy "courses_admin_insert" on public.courses
+  for insert to authenticated with check (public.is_admin() and teacher_id = (select auth.uid()));
+
 -- Lessons: enrolled students and the owning teacher can read; only owning
 -- teachers can manage lesson content.
 drop policy if exists "lessons_read_enrolled_or_teacher" on public.lessons;
@@ -149,6 +212,23 @@ create policy "lessons_teacher_delete" on public.lessons
   for delete to authenticated
   using (exists (select 1 from public.courses c where c.id = course_id and c.teacher_id = (select auth.uid())));
 
+
+drop policy if exists "lessons_admin_read" on public.lessons;
+create policy "lessons_admin_read" on public.lessons
+  for select to authenticated using (public.is_admin());
+
+drop policy if exists "lessons_admin_insert" on public.lessons;
+create policy "lessons_admin_insert" on public.lessons
+  for insert to authenticated with check (public.is_admin());
+
+drop policy if exists "lessons_admin_update" on public.lessons;
+create policy "lessons_admin_update" on public.lessons
+  for update to authenticated using (public.is_admin()) with check (public.is_admin());
+
+drop policy if exists "lessons_admin_delete" on public.lessons;
+create policy "lessons_admin_delete" on public.lessons
+  for delete to authenticated using (public.is_admin());
+
 -- Students can enroll themselves. They can read only their own enrollments.
 drop policy if exists "enrollments_read_own_or_teacher" on public.enrollments;
 create policy "enrollments_read_own_or_teacher" on public.enrollments
@@ -165,6 +245,11 @@ drop policy if exists "enrollments_student_delete" on public.enrollments;
 create policy "enrollments_student_delete" on public.enrollments
   for delete to authenticated using (student_id = (select auth.uid()));
 
+
+drop policy if exists "enrollments_admin_read" on public.enrollments;
+create policy "enrollments_admin_read" on public.enrollments
+  for select to authenticated using (public.is_admin());
+
 -- Backfill profiles for users who registered before this trigger was installed.
 insert into public.profiles (id, full_name, role)
 select id, coalesce(raw_user_meta_data ->> 'full_name', ''), 'student'
@@ -179,9 +264,8 @@ grant select, insert, update, delete on public.courses to authenticated;
 grant select, insert, update, delete on public.lessons to authenticated;
 grant select, insert, delete on public.enrollments to authenticated;
 
--- Promote a trusted account to teacher only from this SQL editor, after
--- replacing the email below with the intended teacher's verified email:
--- update public.profiles p
--- set role = 'teacher'
--- from auth.users u
--- where p.id = u.id and u.email = 'teacher@example.com';
+-- IMPORTANT: Bootstrap the first admin manually in the Supabase SQL Editor.
+-- Replace the email below with the exact email used to sign in to MedClass,
+-- then uncomment and run these two lines once:
+-- update public.profiles p set role = 'admin'
+-- from auth.users u where p.id = u.id and u.email = 'YOUR_LOGIN_EMAIL';
