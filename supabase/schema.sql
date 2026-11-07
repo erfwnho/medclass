@@ -165,6 +165,12 @@ drop policy if exists "enrollments_student_delete" on public.enrollments;
 create policy "enrollments_student_delete" on public.enrollments
   for delete to authenticated using (student_id = (select auth.uid()));
 
+-- Backfill profiles for users who registered before this trigger was installed.
+insert into public.profiles (id, full_name, role)
+select id, coalesce(raw_user_meta_data ->> 'full_name', ''), 'student'
+from auth.users
+on conflict (id) do nothing;
+
 -- Keep profile roles protected from browser-side escalation.
 revoke update on public.profiles from authenticated;
 grant update (full_name) on public.profiles to authenticated;
